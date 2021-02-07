@@ -64,19 +64,46 @@ class UI {
     });
 
     productsDOM.innerHTML = result;
-    console.log(result);
+  }
+  getBagButton() {
+    const buttons = [...document.querySelectorAll(".bag-btn")];
+    buttons.forEach(button => {
+      let id = button.dataset.id;
+      let inCart = cart.find(item => {
+        item.id === id;
+      });
+      if (inCart) {
+        button.innerText = "In Cart";
+        button.disabled = true;
+      } else {
+        button.addEventListener("click", e => {
+          e.target.innerText = "In Cart";
+          e.target.disabled = true;
+        });
+      }
+    });
   }
 }
 
 // local storage
-class Storage {}
+class Storage {
+  static saveProduct(products) {
+    localStorage.setItem("products", JSON.stringify(products));
+  }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const ui = new UI();
   const product = new Products();
 
   // get all products
-  product.getProducts().then(products => {
-    return ui.displayProducts(products);
-  });
+  product
+    .getProducts()
+    .then(products => {
+      Storage.saveProduct(products); // save products in local storage
+      ui.displayProducts(products);
+    })
+    .then(() => {
+      ui.getBagButton();
+    });
 });
